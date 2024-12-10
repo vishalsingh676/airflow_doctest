@@ -85,7 +85,7 @@ default_args = {
 }
 
 dag = DAG(
-    "submit_spark_job_airflow_minimal8",
+    "submit_spark_pi",
     default_args=default_args,
     description="Submit Spark job to Kubernetes via Airflow",
     schedule=timedelta(days=1),
