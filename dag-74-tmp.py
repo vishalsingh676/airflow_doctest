@@ -69,6 +69,11 @@ dag = DAG(
 
 submit_spark_job = SparkKubernetesOperator(
     task_id="submit-dag-74-pod", #NOT but in blog
+    executor_config={
+        "env": {
+            "KUBERNETES_OPERATOR_LOG_LEVEL": "DEBUG",
+        },
+    },
     name="dag-74-pod-spark-job", #ok
     namespace="default", #ok
     image="bitnami/kubectl:latest", #ok
