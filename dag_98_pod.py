@@ -1,8 +1,8 @@
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from airflow.sensors.base import BaseSensorOperator
+# from airflow.sensors.base import BaseSensorOperator
 from datetime import datetime, timedelta
-import subprocess
+# import subprocess
 
 # class SparkApplicationSensor(BaseSensorOperator):
 #     """
