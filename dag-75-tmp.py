@@ -12,11 +12,11 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-spec = {{
+spec = {
   "apiVersion": "sparkoperator.k8s.io/v1beta2",
   "kind": "SparkApplication",
   "metadata": {
-    "name": "dag-75-pod",
+    "name": "dag-79-pod",
     "namespace": "default"
   },
   "spec": {
@@ -56,7 +56,7 @@ spec = {{
       "memory": "512m"
     }
   }
-}}
+}
 
 dag = DAG(
     "dag-75-pod", #same name as application. and there should be no underscore in application name
