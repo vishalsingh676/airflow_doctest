@@ -68,6 +68,7 @@ dag = DAG(
 )
 
 submit_spark_job = SparkKubernetesOperator(
+    base_container_name="spark-kubernetes-driver",
     task_id="submit-dag-74-pod", #NOT but in blog
     name="dag-74-pod-spark-job", #ok
     namespace="default", #ok
