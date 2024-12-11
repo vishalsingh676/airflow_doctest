@@ -12,7 +12,7 @@ default_args = {
 }
 
 dag = DAG(
-    "sparkTest-operator",
+    "sparkTestOperator",
     default_args=default_args,
     description="Submit Spark job to Kubernetes via Airflow using Spark Operator",
     schedule=timedelta(days=1),
