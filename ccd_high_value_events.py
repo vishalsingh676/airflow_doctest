@@ -50,7 +50,7 @@ event_stream_array = array(
         (col("event_type") == "click") &
         (
             when(col("event_subtype") == "all-apps",
-                 when(col("event_value") != "default", lit(True)).otherwise(lit(False))
+                 when(col("event_value") == "default", lit(False)).otherwise(lit(True))
             ).otherwise(lit(True))
         ) &
         (coalesce(col("event_value"), lit("UNKNOWN")) != "auto"),
@@ -180,7 +180,7 @@ event_stream_array = array(
         (col("event_type") == "click") &
         (
             when(col("event_subtype") == "all-apps",
-                 when(col("event_value") != "default", lit(True)).otherwise(lit(False))
+                 when(col("event_value") == "default", lit(False)).otherwise(lit(True))
             ).otherwise(lit(True))
         ) &
         (coalesce(col("event_value"), lit("UNKNOWN")) != "auto"),
@@ -198,7 +198,7 @@ event_stream_array = array(
         (col("event_type") == "click") &
         (
             when(col("event_subtype") == "all-apps",
-                 when(col("event_value") != "default", lit(True)).otherwise(lit(False))
+                 when(col("event_value") == "default", lit(False)).otherwise(lit(True))
             ).otherwise(lit(True))
         ) &
         (coalesce(col("event_value"), lit("UNKNOWN")) != "auto"),
@@ -216,8 +216,29 @@ event_stream_array = array(
     ).otherwise(lit(None)),
 
     # ───────────────────────────────────────────────────────────────────────────
-    #  i) CCD__CCD_USER_APPS  (already replaced above)
+    #  i) CCD__CCD_USER_APPS  ( newly added )
     # ───────────────────────────────────────────────────────────────────────────
+    when(
+        (col("event_type") == "click") &
+        (col("source_version") >= "5.0") &
+        (
+            when(col("event_subtype") == "all-apps",
+                 when(col("event_value") == "default", lit(False)).otherwise(lit(True))
+            ).otherwise(lit(True))
+        ) &
+        (coalesce(col("event_value"), lit("UNKNOWN")) != "auto"),
+        concat(
+            lit("CCD__CCD_USER_APPS"), lit(":::"),
+            lit("active"),             lit(":::"),
+            coalesce(col("content_id"), lit("UNKNOWN"))
+        )
+    ).otherwise(
+        concat(
+            lit("CCD__CCD_USER_APPS"), lit(":::"),
+            lit("other"),              lit(":::"),
+            coalesce(col("content_id"), lit("UNKNOWN"))
+        )
+    ),
 
     # ───────────────────────────────────────────────────────────────────────────
     #  j) CCD__CAMPAIGN_USERS   (FIXED concat vs concat_ws)
