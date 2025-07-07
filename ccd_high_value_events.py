@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.functions import col, lit, when, split, upper, regexp_replace, coalesce, array, explode, collect_set, concat, array_sort, size, to_timestamp, date_trunc
+from pyspark.sql.functions import col, lit, when, split, upper, regexp_replace, coalesce, array, explode, collect_set, concat, array_sort, size, to_timestamp, date_trunc, expr
 
 # -----------------------------------------------------------------------------
 # Configuration / parameters. Fill these in from your scheduler / DAG context.
