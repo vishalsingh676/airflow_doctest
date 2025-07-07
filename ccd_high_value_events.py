@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.functions import col, lit, when, split, upper, regexp_replace, coalesce, array, explode, collect_set, concat
+from pyspark.sql.functions import col, lit, when, split, upper, regexp_replace, coalesce, array, explode, collect_set, concat, array_sort, size, to_timestamp, date_trunc
 
 # -----------------------------------------------------------------------------
 # Configuration / parameters. Fill these in from your scheduler / DAG context.
@@ -13,6 +13,10 @@ end_date_str        = "2024-06-07"  # example, REPLACE
 # end_date_int        = int(end_date_str.replace("-", ""))
 
 spark = SparkSession.builder.getOrCreate()
+
+# Ensure Spark interprets all timestamp operations in UTC so that they match
+# Hive behaviour (Hive stores TIMESTAMP in UTC by default).
+spark.conf.set("spark.sql.session.timeZone", "UTC")
 
 # -----------------------------------------------------------------------------
 # 1.  Source data
@@ -31,7 +35,11 @@ df = df.filter(
 # -----------------------------------------------------------------------------
 
 df = df.withColumn("profile_guid", upper(split(col("member_guid"), "@")[0])) \
-       .withColumn("event_timestamp", col("dts").cast("timestamp"))
+       # Cast to timestamp, then truncate to full-second precision to mirror Hive
+       .withColumn(
+           "event_timestamp",
+           date_trunc("second", to_timestamp(col("dts")))
+       )
 
 # -----------------------------------------------------------------------------
 # 3.  Build event_stream_array  (UPDATED IMPLEMENTATION)
@@ -277,6 +285,19 @@ df = df.filter(col("event_stream").isNotNull() & col("profile_guid").isNotNull()
 # -----------------------------------------------------------------------------
 # 6.  Histogram – compare with Hive result
 # -----------------------------------------------------------------------------
+
+# If you have already built a `df_grouped` DataFrame (i.e. after the
+# groupBy that collects the user
+actions), make sure the array is sorted
+# and that empty arrays are promoted to NULL so that row-level comparisons
+# with Hive match exactly.
+
+if "df_grouped" in locals():
+    df_grouped = df_grouped.withColumn(
+        "user_ccd_apps",
+        F.when(size(col("user_ccd_apps")) == 0, lit(None))
+        .otherwise(array_sort(col("user_ccd_apps")))
+    )
 
 histogram_df = (
     df.select(split("event_stream", ":::")[0].alias("bucket"))
